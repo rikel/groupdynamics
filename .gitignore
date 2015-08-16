@@ -63,4 +63,7 @@ frontend/node_modules/
 frontend/dist/
 frontend/.tmp
 frontend/.sass-cache/
-frontend/bower_components/
+frontend/bower_components/x
+
+# files I don't want to be synced
+assets/
