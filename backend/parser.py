@@ -3,7 +3,7 @@ import random
 from dateutil.parser import parse
 import time
 import datetime
-
+import cStringIO
 
 def from_date_to_timestamp(date_string):
 	try:
@@ -67,8 +67,11 @@ class Chat(object):
 		self.parse_lines()
 
 	def read_file(self):
-		with open(self.filename) as f:
-			lines = f.readlines()
+		if type(self.filename) is str:
+			with open(self.filename) as f:
+				lines = f.readlines()
+		elif isinstance(self.filename, cStringIO.InputType):
+			lines = self.filename.readlines()
 		self.lines = lines
 
 	def parse_lines(self):
@@ -122,12 +125,13 @@ class Statistics(object):
 
 
 # example of main code
-# filename = "GOB.txt"
-# p = Chat(filename)
+if __name__ == "__main__":
+	filename = "GOB.txt"
+	p = Chat(filename)
 
-# for u in p.users:
-#     u.display_info()
-#     print u.get_random_message()
-#     print "# Media = {}, # Mess = {}, Ratio = {}.".format(u.num_media, u.num_messages, float(u.num_media) / u.num_messages)
-
+	for u in p.users:
+	    u.display_info()
+	    u.read_media()
+	    print u.get_random_message()
+	    print "# Media = {}, # Mess = {}, Ratio = {}.".format(u.num_media, u.num_messages, float(u.num_media) / u.num_messages)
 
