@@ -67,3 +67,6 @@ frontend/bower_components/x
 
 # files I don't want to be synced
 assets/
+.ipynb_checkpoints/
+data/
+*.ipynb
