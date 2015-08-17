@@ -8,7 +8,7 @@
  * Controller of the frontendApp
  */
 angular.module('frontendApp')
-  .controller('MainCtrl', function($scope, $upload, $location) {
+  .controller('MainCtrl', ['$scope', '$upload','$location', function($scope, $upload, $location) {
     $scope.onFileSelect = function($files) {
 		//$files: an array of files selected, each file has name, size, and type.
 		$scope.selectedFiles = $files;
@@ -31,4 +31,4 @@ angular.module('frontendApp')
 			});
 		}
 	}
-});
+}]);
