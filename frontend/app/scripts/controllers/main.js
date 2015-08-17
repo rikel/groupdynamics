@@ -27,7 +27,31 @@ angular.module('frontendApp')
 				$scope.progress[i-1] = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
 			}).success(function(data, status, headers, config) {
 				$scope.data = data;
-				console.log(data);
+				var users = [];
+				var messages = []
+				for (var key in data) {
+  					if (data.hasOwnProperty(key)) {
+    					users.push(key);
+    					messages.push(data[key])
+  					}
+				}
+				$scope.highchartsNG = {
+        			options: {
+            			chart: {
+                			type: 'bar'
+            			},
+            			xAxis: {
+            				categories: users,
+        				},
+        			},
+        			series: [{
+            			data: messages
+        			}],
+        			title: {
+            			text: 'Hello'
+        			},
+        			loading: false
+    				}
 			}).then(function(){
 				$scope.selectedFiles = null;
 				$scope.fileUploaded = true;

@@ -7,10 +7,5 @@
   <p><div class="btn btn-lg btn-primary" ng-file-select="onFileSelect($files,$scope)">Upload Chat File</div></p>
 </div>
 <div ng-show="fileUploaded == true">
-  <div ng-repeat="(user,messages) in data">
-    <p>
-      {{user}}:{{messages}}
-    </p><br>
-  </div>
+  <highchart id="chart1" config="highchartsNG"></highchart>
 </div>
-

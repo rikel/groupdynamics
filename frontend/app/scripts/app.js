@@ -17,6 +17,7 @@ angular
     'ngSanitize',
     'ngTouch',
     'angularFileUpload',
+    'highcharts-ng'
   ])
   .config(function ($routeProvider) {
     $routeProvider
