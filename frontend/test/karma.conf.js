@@ -31,6 +31,11 @@ module.exports = function(config) {
       'bower_components/angular-route/angular-route.js',
       'bower_components/angular-sanitize/angular-sanitize.js',
       'bower_components/angular-touch/angular-touch.js',
+      'bower_components/ng-file-upload/angular-file-upload.js',
+      'bower_components/highcharts-release/highcharts.js',
+      'bower_components/highcharts-release/highcharts-more.js',
+      'bower_components/highcharts-release/modules/exporting.js',
+      'bower_components/highcharts-ng/dist/highcharts-ng.js',
       'bower_components/angular-mocks/angular-mocks.js',
       // endbower
       "app/scripts/**/*.js",

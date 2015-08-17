@@ -82,13 +82,11 @@ class Chat(object):
 			s = l.split('-')
 			if len(s) > 1:
 				name = s[1].split(':')[0].lstrip()
-				if len(s[1].split(':')) > 2:
-					print len(s[1].split(':'))
-					print "".join(s[1].split(':')[0:])
+				m_text = ":".join(s[1].split(':')[1:]).lstrip()
 				if name not in chat:
 					chat[name] = []
 				date_message = from_date_to_timestamp(s[0].lstrip())
-				chat[name].append((i, date_message, l))
+				chat[name].append((i, date_message, m_text))
 
 		for k, v in chat.iteritems():
 			if len(v) >= self.min_num_mess:
@@ -114,14 +112,13 @@ class Statistics(object):
 		self.chat = chat
 
 	def return_number_messages(self):
-		return [(u.name, u.num_messages) for u in chat.users]
+		return { u.name:u.num_messages for u in self.chat.users }
 
 	def return_number_media(self):
-		return [(u.name, u.num_media) for u in chat.users]
+		return { u.name:u.num_media for u in self.chat.users }
 
 	def return_ratio_messages_media(self):
-		return [(u.name, float(u.num_media) / u.num_messages) for u in chat.users]
-
+		return { u.name:float(u.num_media) / u.num_messages for u in self.chat.users }
 
 
 # example of main code

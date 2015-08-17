@@ -15,7 +15,9 @@ angular
     'ngResource',
     'ngRoute',
     'ngSanitize',
-    'ngTouch'
+    'ngTouch',
+    'angularFileUpload',
+    'highcharts-ng'
   ])
   .config(function ($routeProvider) {
     $routeProvider
@@ -28,6 +30,11 @@ angular
         templateUrl: 'views/about.html',
         controller: 'AboutCtrl',
         controllerAs: 'about'
+      })
+      .when('/analysis', {
+        templateUrl: 'views/analysis.html',
+        controller: 'AnalysisCtrl',
+        controllerAs: 'analysis'
       })
       .otherwise({
         redirectTo: '/'
