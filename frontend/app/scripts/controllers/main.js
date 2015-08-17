@@ -9,6 +9,7 @@
  */
 angular.module('frontendApp')
   .controller('MainCtrl', ['$scope', '$upload','$location', function($scope, $upload, $location) {
+  	$scope.fileUploaded = false;
     $scope.onFileSelect = function($files) {
 		//$files: an array of files selected, each file has name, size, and type.
 		$scope.selectedFiles = $files;
@@ -25,9 +26,11 @@ angular.module('frontendApp')
 			}).progress(function(evt) {
 				$scope.progress[i-1] = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
 			}).success(function(data, status, headers, config) {
-				// file is uploaded successfully
+				$scope.data = data;
+				console.log(data);
 			}).then(function(){
 				$scope.selectedFiles = null;
+				$scope.fileUploaded = true;
 			});
 		}
 	}

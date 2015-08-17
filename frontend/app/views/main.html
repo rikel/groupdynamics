@@ -6,5 +6,11 @@
   </p>
   <p><div class="btn btn-lg btn-primary" ng-file-select="onFileSelect($files,$scope)">Upload Chat File</div></p>
 </div>
-
+<div ng-show="fileUploaded == true">
+  <div ng-repeat="user in data.users">
+    <p>
+      {{user}}
+    </p><br>
+  </div>
+</div>
 
