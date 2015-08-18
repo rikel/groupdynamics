@@ -164,6 +164,26 @@ class Statistics(object):
 		else:
 			return shareByUser
 
+	def return_number_of_messages_by_hour(self,as_chart=False):
+		byHour = self.df[['id_message']]
+		byHour['hour'] = byHour.index.hour
+		byHour = byHour.groupby('hour').aggregate(np.count_nonzero)
+		if as_chart:
+			config = serialize(byHour,kind='line',title='Number of Messages per Hour of the Day',output_type='json')
+			return {'options':config,'series':config['series']}
+		else:
+			return byHour
+
+	def return_number_of_messages_by_hour_and_user(self,as_chart=False):
+		byHourAndUser = self.df[['id_message','user_name']]
+		byHourAndUser['hour'] = byHourAndUser.index.hour
+		byHourAndUser = byHourAndUser.groupby(['hour','user_name']).aggregate(np.count_nonzero).unstack().fillna(0)
+		if as_chart:
+			config = serialize(byHourAndUser,kind='bar',title='Number of Messages by Hour and User',output_type='json')
+			return {'options':config,'series':config['series']}
+		else:
+			return byHourAndUser
+
 	def time_buckets(self, messages_minutes, num_buckets=48):
     
 		day_minutes = 24 * 60
