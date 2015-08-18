@@ -4,13 +4,21 @@ from dateutil.parser import parse
 import time
 import datetime
 import cStringIO
+import pandas as pd
 
+# constants
+minute_hour = 60
+
+# functions
 def from_date_to_timestamp(date_string):
 	try:
 		dt = parse(date_string)
 		return time.mktime(dt.timetuple())
 	except:
 		return -1
+
+def from_timestamp_to_date(timestamp):
+	return parse(time.strftime("%D %H:%M", time.localtime(int(timestamp))))
 
 class Message(object):
 
@@ -86,7 +94,7 @@ class Chat(object):
 				if name not in chat:
 					chat[name] = []
 				date_message = from_date_to_timestamp(s[0].lstrip())
-				chat[name].append((i, date_message, m_text))
+				chat[name].append((i, date_message, unicode(m_text, 'utf-8')))
 
 		for k, v in chat.iteritems():
 			if len(v) >= self.min_num_mess:
@@ -104,12 +112,18 @@ class Chat(object):
 		print "Max # messages per user: {}. Min # messages per user: {}.".format(max([u.num_messages for u in self.users]), min([u.num_messages for u in self.users]))
 
 
-
-
 class Statistics(object):
 
 	def __init__(self, chat):
 		self.chat = chat
+		user_names = {u.id_user:u.name for u in self.chat.users}
+
+#		list_messages = [{'time':m.date, 'id_message':m.id_message, 'text':m.text, 'isMedia':m.isMedia, 'user_id':m.id_user, 'user_name':user_names[m.id_user]} for u in self.chat.users for m in u.messages]
+		list_messages = [{'time':from_timestamp_to_date(m.date), 'id_message':m.id_message, 'isMedia':m.isMedia, 'user_id':m.id_user, 'user_name':user_names[m.id_user]} for u in self.chat.users for m in u.messages]
+
+
+		self.df = pd.DataFrame(list_messages).set_index('time')
+
 
 	def return_number_messages(self):
 		return { u.name:u.num_messages for u in self.chat.users }
@@ -119,6 +133,30 @@ class Statistics(object):
 
 	def return_ratio_messages_media(self):
 		return { u.name:float(u.num_media) / u.num_messages for u in self.chat.users }
+
+	def return_time_curve(self):
+		m_dates = []
+		for u in self.chat.users:
+			for m in u.messages:
+				d = datetime.datetime.fromtimestamp(m.date)
+				m_dates.append(d.hour * minute_hour + d.minute)
+		return self.time_buckets(m_dates)
+
+	def time_buckets(self, messages_minutes, num_buckets=48):
+    
+		day_minutes = 24 * 60
+		min_per_bucket = day_minutes / 48
+
+		buckets = dict()
+
+		for i in xrange(num_buckets):
+			buckets[i] = 0
+		for m in messages_minutes:
+			b = int(np.floor(m / min_per_bucket))
+			buckets[b] += 1
+
+		return buckets
+
 
 
 # example of main code

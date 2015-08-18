@@ -4,12 +4,14 @@
     <img src="images/yeoman.png" alt="I'm Yeoman"><br>
     Understand your friends using your Whatsapp chat history!
   </p>
-  <p><div class="btn btn-lg btn-primary" ng-file-select="onFileSelect($files,$scope)">Upload Chat File</div></p>
+  <p>
+    <div class="btn btn-lg btn-primary" ng-file-select="onFileSelect($files,$scope)">Upload Chat File</div>
+  </p>
 </div>
 <div ng-show="fileUploaded == true">
   <div ng-repeat="(user,messages) in data">
     <p>
-      {{user}}:{{messages}}
+      <b>{{user}}</b>{{messages}}.
     </p><br>
   </div>
 </div>
