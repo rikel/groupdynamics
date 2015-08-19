@@ -5,6 +5,7 @@ import time
 import datetime
 import cStringIO
 import pandas as pd
+from pandas_highcharts.core import serialize
 
 # constants
 minute_hour = 60
@@ -142,6 +143,47 @@ class Statistics(object):
 				m_dates.append(d.hour * minute_hour + d.minute)
 		return self.time_buckets(m_dates)
 
+	def return_messages_by_user(self,as_chart=False):
+		mByUser = self.df[['user_name','id_message']].groupby('user_name').aggregate(np.count_nonzero)
+		mByUser['Number of Messages'] = mByUser['id_message']
+		mByUser = mByUser[['Number of Messages']]
+		if as_chart:
+			config = serialize(mByUser,kind='bar',title='Number of Messages',output_type='json')
+			return {'options':config,'series':config['series']}
+		else:
+			return mByUser
+
+	def return_share_of_messages_by_user(self,as_chart=False):
+		shareByUser = self.df[['user_name','id_message']].groupby('user_name').aggregate(np.count_nonzero)
+		shareByUser['Share of Messages'] = shareByUser['id_message']*100.0/np.sum(shareByUser['id_message'])
+		shareByUser = shareByUser[['Share of Messages']]
+		if as_chart:
+			tooltip = {'pointFormat': '{series.name}: <b>{point.percentage:.1f}%</b>'}
+			config = serialize(shareByUser,kind='pie',title='Share of Messages',output_type='json',tooltip=tooltip)
+			return {'options':config,'series':config['series']}
+		else:
+			return shareByUser
+
+	def return_number_of_messages_by_hour(self,as_chart=False):
+		byHour = self.df[['id_message']]
+		byHour['hour'] = byHour.index.hour
+		byHour = byHour.groupby('hour').aggregate(np.count_nonzero)
+		if as_chart:
+			config = serialize(byHour,kind='line',title='Number of Messages per Hour of the Day',output_type='json')
+			return {'options':config,'series':config['series']}
+		else:
+			return byHour
+
+	def return_number_of_messages_by_hour_and_user(self,as_chart=False):
+		byHourAndUser = self.df[['id_message','user_name']]
+		byHourAndUser['hour'] = byHourAndUser.index.hour
+		byHourAndUser = byHourAndUser.groupby(['hour','user_name']).aggregate(np.count_nonzero).unstack().fillna(0)
+		if as_chart:
+			config = serialize(byHourAndUser,kind='bar',title='Number of Messages by Hour and User',output_type='json')
+			return {'options':config,'series':config['series']}
+		else:
+			return byHourAndUser
+
 	def time_buckets(self, messages_minutes, num_buckets=48):
     
 		day_minutes = 24 * 60
@@ -169,4 +211,3 @@ if __name__ == "__main__":
 	    u.read_media()
 	    print u.get_random_message()
 	    print "# Media = {}, # Mess = {}, Ratio = {}.".format(u.num_media, u.num_messages, float(u.num_media) / u.num_messages)
-

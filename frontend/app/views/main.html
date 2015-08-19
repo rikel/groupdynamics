@@ -9,10 +9,7 @@
   </p>
 </div>
 <div ng-show="fileUploaded == true">
-  <div ng-repeat="(user,messages) in data">
-    <p>
-      <b>{{user}}</b>{{messages}}.
-    </p><br>
+  <div ng-repeat="chartConfig in data.charts">
+    <highchart config="data.charts[$index]"></highchart>
   </div>
 </div>
-
