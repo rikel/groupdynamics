@@ -3,6 +3,7 @@ import random
 from dateutil.parser import parse
 import time
 import datetime
+from collections import defaultdict
 import cStringIO
 import pandas as pd
 from pandas_highcharts.core import serialize
@@ -105,6 +106,18 @@ class Chat(object):
 
 		self.chat = chat_def
 
+	def user_for_message(self, id_message):
+		for u in self.users:
+			if id_message in [m.id_message for m in u.messages]:
+				return u
+		return -1
+
+	def return_username(self, id_user):
+		for u in self.users:
+			if u.id_user == id_user:
+				return u.name
+		return -1
+
 	def display_summary(self):
 		print "Summary of Chat -------------"
 		total_num_messages = np.sum([u.num_messages for u in self.users])
@@ -129,6 +142,56 @@ class Statistics(object):
 
 	def return_ratio_messages_media(self):
 		return { u.name:float(u.num_media) / u.num_messages for u in self.chat.users }
+
+	def return_conversations(self, thr_min=30):
+
+		seconds_min = 60
+		dist_conversation = thr_min * seconds_min
+		conversations, message_to_conv = [], dict()
+		conv_to_messages, conv_to_users = defaultdict(list), defaultdict(list)
+
+		messages_time = self.df[['id_message']]
+
+		tstamp_message = zip([int(val * 1E-9) for val in messages_time.index.values.tolist()], messages_time.values[:,0])
+		tstamp_message = sorted(tstamp_message, key=lambda elt: elt[0])
+
+		num_conv = -1
+		last_date = - 2 * dist_conversation
+		for elt in tstamp_message:
+			if elt[0] - last_date >= dist_conversation:
+				num_conv += 1
+			message_to_conv[elt[1]] = num_conv
+			last_date = elt[0]
+
+		for k, v in message_to_conv.iteritems():
+			conv_to_messages[v].append(k)
+			conv_to_users[v].append(self.chat.user_for_message(k))
+
+		return conv_to_messages, conv_to_users
+
+	def compute_graph_conversations(self, conv_to_messages, conv_to_users):
+
+		graph, user_counts = dict(), defaultdict(int)
+
+		for u1 in self.chat.users:
+			for u2 in self.chat.users:
+				if u1.id_user < u2.id_user:
+					graph[(u1.id_user, u2.id_user)] = 0
+
+		for c in conv_to_users.values():
+			set_users = list(set(c))
+			for u1 in set_users:
+				user_counts[u1.id_user] += 1
+				for u2 in set_users:
+					if u1.id_user >= u2.id_user:
+						continue
+					graph[(u1.id_user, u2.id_user)] += 1
+
+		for id1, id2 in graph.keys():
+			graph[(id1, id2)] /= max(user_counts[id1], user_counts[id1])
+
+		return graph
+
 
 	def return_messages_by_user(self, as_chart=False):
 
