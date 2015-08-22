@@ -3,6 +3,7 @@ import random
 from dateutil.parser import parse
 import time
 import datetime
+from collections import defaultdict
 import cStringIO
 import pandas as pd
 from pandas_highcharts.core import serialize
@@ -105,6 +106,18 @@ class Chat(object):
 
 		self.chat = chat_def
 
+	def user_for_message(self, id_message):
+		for u in self.users:
+			if id_message in [m.id_message for m in u.messages]:
+				return u
+		return -1
+
+	def return_username(self, id_user):
+		for u in self.users:
+			if u.id_user == id_user:
+				return u.name
+		return -1
+
 	def display_summary(self):
 		print "Summary of Chat -------------"
 		total_num_messages = np.sum([u.num_messages for u in self.users])
@@ -118,13 +131,8 @@ class Statistics(object):
 	def __init__(self, chat):
 		self.chat = chat
 		user_names = {u.id_user:u.name for u in self.chat.users}
-
-#		list_messages = [{'time':m.date, 'id_message':m.id_message, 'text':m.text, 'isMedia':m.isMedia, 'user_id':m.id_user, 'user_name':user_names[m.id_user]} for u in self.chat.users for m in u.messages]
 		list_messages = [{'time':from_timestamp_to_date(m.date), 'id_message':m.id_message, 'isMedia':m.isMedia, 'user_id':m.id_user, 'user_name':user_names[m.id_user]} for u in self.chat.users for m in u.messages]
-
-
 		self.df = pd.DataFrame(list_messages).set_index('time')
-
 
 	def return_number_messages(self):
 		return { u.name:u.num_messages for u in self.chat.users }
@@ -135,69 +143,122 @@ class Statistics(object):
 	def return_ratio_messages_media(self):
 		return { u.name:float(u.num_media) / u.num_messages for u in self.chat.users }
 
-	def return_time_curve(self):
-		m_dates = []
-		for u in self.chat.users:
-			for m in u.messages:
-				d = datetime.datetime.fromtimestamp(m.date)
-				m_dates.append(d.hour * minute_hour + d.minute)
-		return self.time_buckets(m_dates)
+	def return_conversations(self, thr_min=30):
 
-	def return_messages_by_user(self,as_chart=False):
-		mByUser = self.df[['user_name','id_message']].groupby('user_name').aggregate(np.count_nonzero)
-		mByUser['Number of Messages'] = mByUser['id_message']
-		mByUser = mByUser[['Number of Messages']]
+		seconds_min = 60
+		dist_conversation = thr_min * seconds_min
+		conversations, message_to_conv = [], dict()
+		conv_to_messages, conv_to_users = defaultdict(list), defaultdict(list)
+
+		messages_time = self.df[['id_message']]
+
+		tstamp_message = zip([int(val * 1E-9) for val in messages_time.index.values.tolist()], messages_time.values[:,0])
+		tstamp_message = sorted(tstamp_message, key=lambda elt: elt[0])
+
+		num_conv = -1
+		last_date = - 2 * dist_conversation
+		for elt in tstamp_message:
+			if elt[0] - last_date >= dist_conversation:
+				num_conv += 1
+			message_to_conv[elt[1]] = num_conv
+			last_date = elt[0]
+
+		for k, v in message_to_conv.iteritems():
+			conv_to_messages[v].append(k)
+			conv_to_users[v].append(self.chat.user_for_message(k))
+
+		return conv_to_messages, conv_to_users
+
+	def compute_graph_conversations(self, conv_to_messages, conv_to_users):
+
+		graph, user_counts = dict(), defaultdict(int)
+
+		for u1 in self.chat.users:
+			for u2 in self.chat.users:
+				if u1.id_user < u2.id_user:
+					graph[(u1.id_user, u2.id_user)] = 0
+
+		for c in conv_to_users.values():
+			set_users = list(set(c))
+			for u1 in set_users:
+				user_counts[u1.id_user] += 1
+				for u2 in set_users:
+					if u1.id_user >= u2.id_user:
+						continue
+					graph[(u1.id_user, u2.id_user)] += 1
+
+		for id1, id2 in graph.keys():
+			graph[(id1, id2)] /= max(user_counts[id1], user_counts[id1])
+
+		return graph
+
+
+	def return_messages_by_user(self, as_chart=False):
+
+		m_by_user = self.df[['user_name', 'id_message']].groupby('user_name').count()
+		m_by_user['Number of Messages'] = m_by_user['id_message']
+		m_by_user = m_by_user[['Number of Messages']]
+
 		if as_chart:
-			config = serialize(mByUser,kind='bar',title='Number of Messages',output_type='json')
-			return {'options':config,'series':config['series']}
+			config = serialize(m_by_user, kind='bar', title='Number of Messages', output_type='json')
+			return {'options':config, 'series':config['series']}
 		else:
-			return mByUser
+			return m_by_user
 
-	def return_share_of_messages_by_user(self,as_chart=False):
-		shareByUser = self.df[['user_name','id_message']].groupby('user_name').aggregate(np.count_nonzero)
-		shareByUser['Share of Messages'] = shareByUser['id_message']*100.0/np.sum(shareByUser['id_message'])
-		shareByUser = shareByUser[['Share of Messages']]
+	def return_share_of_messages_by_user(self, as_chart=False):
+
+		share_by_user = self.df[['user_name','id_message']].groupby('user_name').count()
+		total_num_messages = share_by_user['id_message'].sum()
+		share_by_user['Share of Messages'] = share_by_user['id_message'] * 100.0 / total_num_messages
+		share_by_user = share_by_user[['Share of Messages']]
+
 		if as_chart:
 			tooltip = {'pointFormat': '{series.name}: <b>{point.percentage:.1f}%</b>'}
-			config = serialize(shareByUser,kind='pie',title='Share of Messages',output_type='json',tooltip=tooltip)
-			return {'options':config,'series':config['series']}
+			config = serialize(share_by_user, kind='pie', title='Share of Messages',
+							   output_type='json', tooltip=tooltip)
+			return {'options':config, 'series':config['series']}
 		else:
-			return shareByUser
+			return share_by_user
 
-	def return_number_of_messages_by_hour(self,as_chart=False):
-		byHour = self.df[['id_message']]
-		byHour['hour'] = byHour.index.hour
-		byHour = byHour.groupby('hour').aggregate(np.count_nonzero)
+	def return_number_of_messages_by_hour(self, as_chart=False):
+
+		m_by_hour = self.df[['id_message']].copy()
+		m_by_hour.loc[:, 'hour'] = m_by_hour.index.hour
+		m_by_hour = m_by_hour.groupby('hour').count()
+		
 		if as_chart:
-			config = serialize(byHour,kind='line',title='Number of Messages per Hour of the Day',output_type='json')
-			return {'options':config,'series':config['series']}
+			config = serialize(m_by_hour, kind='line', title='Number of Messages per Hour of the Day',
+							   output_type='json')
+			return {'options':config, 'series':config['series']}
 		else:
-			return byHour
+			return m_by_hour
 
-	def return_number_of_messages_by_hour_and_user(self,as_chart=False):
-		byHourAndUser = self.df[['id_message','user_name']]
-		byHourAndUser['hour'] = byHourAndUser.index.hour
-		byHourAndUser = byHourAndUser.groupby(['hour','user_name']).aggregate(np.count_nonzero).unstack().fillna(0)
+	def return_number_of_messages_by_hour_and_user(self, as_chart=False):
+
+		m_by_hour_user = self.df[['id_message','user_name']].copy()
+		m_by_hour_user.loc[:, 'hour'] = m_by_hour_user.index.hour
+		m_by_hour_user = m_by_hour_user.groupby(['hour','user_name']).count().unstack().fillna(0)
+
 		if as_chart:
-			config = serialize(byHourAndUser,kind='bar',title='Number of Messages by Hour and User',output_type='json')
-			return {'options':config,'series':config['series']}
+			config = serialize(m_by_hour_user, kind='bar', title='Number of Messages by Hour and User',
+							   output_type='json')
+			return {'options':config, 'series':config['series']}
 		else:
-			return byHourAndUser
+			return m_by_hour_user
 
-	def time_buckets(self, messages_minutes, num_buckets=48):
-    
-		day_minutes = 24 * 60
-		min_per_bucket = day_minutes / 48
+	def return_number_of_messages_by_week_and_year(self, as_chart=False):
 
-		buckets = dict()
+		m_by_week_year = s.df[['id_message']].copy()
+		m_by_week_year.loc[:, 'year'] = m_by_week_year.index.year
+		m_by_week_year.loc[:, 'week'] = m_by_week_year.index.week
+		m_by_week_year = m_by_week_year.groupby(['year', 'week']).count()
 
-		for i in xrange(num_buckets):
-			buckets[i] = 0
-		for m in messages_minutes:
-			b = int(np.floor(m / min_per_bucket))
-			buckets[b] += 1
-
-		return buckets
+		if as_chart:
+			config = serialize(m_by_week_year, kind='bar', title='Total Number of Messages by Week and Year',
+							   output_type='json')
+			return {'options':config, 'series':config['series']}
+		else:
+			return m_by_week_year
 
 
 
