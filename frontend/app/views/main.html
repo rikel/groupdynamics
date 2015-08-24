@@ -1,5 +1,5 @@
     <!-- Header -->
-    <header id="top" class="header">
+    <header id="top" class="header" ng-show="fileUploaded == false">
         <div class="text-vertical-center">
             <div class="row">
                 <div class="col-md-1"> </div>
@@ -16,31 +16,10 @@
     </header>
 
 
-<!--   <div align="left">
-    <h2>#<b>Group</b>Dynamics</h2><p> Understand your friends using your Whatsapp chat history! </p>
-    <br>
-    <div class="btn btn-lg btn-primary" ng-file-select="onFileSelect($files,$scope)">Upload Chat File</div>
-  </div> -->
-
-  <!-- <div class="jumbotron"> -->
-<!--   <div>
-    <div>
-      <h1>#<b>Group</b>Dynamics</h1>
-      <p class="lead">
-        <!-<img src="images/yeoman.png" alt="I'm Yeoman">--> <!-- <br>
-        Understand your friends using your Whatsapp chat history!
-      </p>
-      <p>
-        <div class="btn btn-lg btn-primary" ng-file-select="onFileSelect($files,$scope)">Upload Chat File</div>
-      </p>
+    <div ng-show="fileUploaded == true">
+      <div class="top-band"><h2>#groupDynamics</h2></div>
+      <div ng-repeat="chartConfig in data.charts">
+        <center><highchart config="data.charts[$index]"></highchart></center>
+        <br><br>
+      </div>
     </div>
-  </div> -->
-
-
-
-  <div ng-show="fileUploaded == true">
-    <div ng-repeat="chartConfig in data.charts">
-      <highchart config="data.charts[$index]"></highchart>
-      <br>
-    </div>
-  </div>

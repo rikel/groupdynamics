@@ -89,8 +89,11 @@ class Chat(object):
 		chat, chat_def = dict(), dict()
 		
 		for i, l in enumerate(self.lines):
+
 			s = l.split('-')
 			if len(s) > 1:
+				if ":" not in s[1]:
+					continue
 				name = s[1].split(':')[0].lstrip()
 				m_text = ":".join(s[1].split(':')[1:]).lstrip()
 				if name not in chat:
@@ -192,15 +195,20 @@ class Statistics(object):
 
 		return graph
 
-
 	def return_messages_by_user(self, as_chart=False):
 
 		m_by_user = self.df[['user_name', 'id_message']].groupby('user_name').count()
 		m_by_user['Number of Messages'] = m_by_user['id_message']
-		m_by_user = m_by_user[['Number of Messages']]
+		m_by_user = m_by_user[['Number of Messages']].sort(['Number of Messages'], ascending=[0])
 
 		if as_chart:
-			config = serialize(m_by_user, kind='bar', title='Number of Messages', output_type='json')
+			config = serialize(m_by_user, kind='bar', title='Number of Messages',
+							   output_type='json', rot=45)
+
+			config["yAxis"][0]["labels"]["rotation"] = 0
+			config["xAxis"]["title"]["text"] = "username"
+			config["yAxis"][0]["title"] = {"text": "# messages"}
+			config["title"]["margin"] = 30
 			return {'options':config, 'series':config['series']}
 		else:
 			return m_by_user
@@ -229,6 +237,9 @@ class Statistics(object):
 		if as_chart:
 			config = serialize(m_by_hour, kind='line', title='Number of Messages per Hour of the Day',
 							   output_type='json')
+
+			config["yAxis"][0]["title"] = {"text": "# messages"}
+			config["series"][0]["name"] = "Number of Messages"
 			return {'options':config, 'series':config['series']}
 		else:
 			return m_by_hour
@@ -239,9 +250,24 @@ class Statistics(object):
 		m_by_hour_user.loc[:, 'hour'] = m_by_hour_user.index.hour
 		m_by_hour_user = m_by_hour_user.groupby(['hour','user_name']).count().unstack().fillna(0)
 
+		names_to_show = []
+		for elt in m_by_hour_user.columns:
+		    names_to_show.append(elt[1])
+		m_by_hour_user.columns = names_to_show
+
 		if as_chart:
 			config = serialize(m_by_hour_user, kind='bar', title='Number of Messages by Hour and User',
 							   output_type='json')
+
+			config["yAxis"][0]["title"] = {"text": "# messages"}
+
+			for k, v in config.iteritems():
+				if k == "series":
+					r = np.random.choice(len(v), 2, replace=False)
+					for j, d in enumerate(v):
+						if j not in r:
+							config["series"][j]["visible"] = False
+
 			return {'options':config, 'series':config['series']}
 		else:
 			return m_by_hour_user
@@ -256,6 +282,8 @@ class Statistics(object):
 		if as_chart:
 			config = serialize(m_by_week_year, kind='bar', title='Total Number of Messages by Week and Year',
 							   output_type='json')
+			config["series"][0]["name"] = "Number of Messages"
+			config["yAxis"][0]["title"] = {"text": "# messages"}
 			return {'options':config, 'series':config['series']}
 		else:
 			return m_by_week_year
