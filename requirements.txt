@@ -1,7 +1,13 @@
 Flask==0.10.1
+Flask-Migrate==1.5.0
+Flask-SQLAlchemy==2.0
+Flask-Script==2.0.5
 Jinja2==2.8
+Mako==1.0.1
 MarkupSafe==0.23
+SQLAlchemy==1.0.8
 Werkzeug==0.10.4
+alembic==0.8.1
 argparse==1.2.1
 coverage==3.7.1
 decorator==4.0.2
@@ -15,6 +21,7 @@ path.py==7.6
 pexpect==3.3
 pickleshare==0.5
 python-dateutil==2.4.2
+python-editor==0.3
 pytz==2015.4
 simplegeneric==0.8.1
 six==1.9.0
