@@ -248,7 +248,7 @@ class Statistics(object):
 
 	def return_number_of_messages_by_week_and_year(self, as_chart=False):
 
-		m_by_week_year = s.df[['id_message']].copy()
+		m_by_week_year = self.df[['id_message']].copy()
 		m_by_week_year.loc[:, 'year'] = m_by_week_year.index.year
 		m_by_week_year.loc[:, 'week'] = m_by_week_year.index.week
 		m_by_week_year = m_by_week_year.groupby(['year', 'week']).count()
