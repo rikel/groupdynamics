@@ -1,12 +1,24 @@
-from backend import app
+from backend import app, db
 from flask import jsonify,request
 from parser import Message, User, Chat, Statistics
 from cStringIO import StringIO
-from models import Upload
+from models import Record
+import datetime
+import os
 
 @app.route('/api/uploadChat',methods=['POST'])
 def upload_chat():
-	chat = Chat(StringIO(request.files['file'].read()))
+	strio = StringIO(request.files['file'].read())
+	chat = Chat(strio)
+	record = {}
+	record['file_size'] = get_file_size(strio)
+	record['number_of_messages'] = chat.return_total_messages()
+	record['number_of_users'] = chat.return_total_users()
+	record['timestamp'] = datetime.datetime.now()
+	record['ip_addr'] = request.remote_addr
+	record = Record(**record)
+	db.session.add(record)
+	db.session.commit()
 	users = [u.name for u in chat.users]
 	stats_chat = Statistics(chat)
 	charts = {
@@ -19,3 +31,8 @@ def upload_chat():
 		'number_of_users':chat.return_total_users()
 			}
 	return jsonify(charts)
+
+
+def get_file_size(fileobj):
+	fileobj.seek(0,os.SEEK_END)
+	return fileobj.tell()
