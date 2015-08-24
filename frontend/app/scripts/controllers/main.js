@@ -27,11 +27,15 @@ angular.module('frontendApp')
 				$scope.progress[i-1] = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
 			}).success(function(data, status, headers, config) {
 				$scope.data = data;
+				// console.log("datasize: " + data.size);
+				// console.log("length: " + data.length);
+				// console.log(data);
+
+				var label = 'Nr. of Messages: ' + $scope.data.number_of_messages + '; Nr. of People: ' + $scope.data.number_of_users;
+				//adding GoogleAnalytics Event
+			     ga('send', 'event', 'SuccesfullUpload', 'click', label);
+				 console.log("Success");
 			}).then(function(){
-				 //adding GoogleAnalytics Event
-			     ga('send', 'event', 'SuccesfullUpload', 'click', 'label');
-				 console.log("Successful Upload");
-				 
 				$scope.selectedFiles = null;
 				$scope.fileUploaded = true;
 			});
