@@ -11,6 +11,8 @@ angular.module('frontendApp')
   .controller('MainCtrl', ['$scope', '$upload','$location', function($scope, $upload, $location) {
   	$scope.fileUploaded = false;
     $scope.onFileSelect = function($files) {
+    	
+     
 		//$files: an array of files selected, each file has name, size, and type.
 		$scope.selectedFiles = $files;
 		$scope.progress = [];
@@ -26,6 +28,10 @@ angular.module('frontendApp')
 			}).success(function(data, status, headers, config) {
 				$scope.data = data;
 			}).then(function(){
+				 //adding GoogleAnalytics Event
+			     ga('send', 'event', 'SuccesfullUpload', 'click', 'label');
+				 console.log("Successful Upload");
+				 
 				$scope.selectedFiles = null;
 				$scope.fileUploaded = true;
 			});
