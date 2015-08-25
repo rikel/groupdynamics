@@ -133,6 +133,11 @@ class Chat(object):
 		print "# of Users: {}. Total # of Messages: {}. Average Length Message: {}.".format(len(self.users), total_num_messages, total_chars_messages / float(total_num_messages))
 		print "Max # messages per user: {}. Min # messages per user: {}.".format(max([u.num_messages for u in self.users]), min([u.num_messages for u in self.users]))
 
+	def return_total_messages(self):
+		return np.sum([u.num_messages for u in self.users])
+
+	def return_total_users(self):
+		return len(self.users)
 
 class Statistics(object):
 

@@ -1,8 +1,17 @@
 import os
 from flask import Flask, jsonify
+from flask.ext.sqlalchemy import SQLAlchemy
+from config import SQLALCHEMY_DATABASE_URI
 
-app = Flask(__name__,static_url_path='',static_folder=os.getcwd()+'/frontend/dist')
+app = Flask('groupstats',static_url_path='',static_folder=os.getcwd()+'/frontend/dist')
+app.config.update(
+	SQLALCHEMY_DATABASE_URI=SQLALCHEMY_DATABASE_URI,
+)
 #app.config['STATIC'] = 'frontend/app'
+
+#create db object
+db = SQLAlchemy(app)
+db.create_all()
 
 @app.route('/api/test',methods=['GET'])
 def test_route():
