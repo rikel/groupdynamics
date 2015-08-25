@@ -45,16 +45,21 @@ class User(object):
 		self.messages = []
 		self.num_messages = 0
 		self.num_media = 0
+		self.num_emoticons = 0
 
 	def read_messages(self, list_messages):
 		for elt in list_messages:
 			self.messages.append(Message(elt[0], self.id_user, elt[1], elt[2]))
 		self.num_messages = len(self.messages)
 		self.read_media()
+		self.count_emoticons()
 
 	def read_media(self, text="Media omitted"):
 		self.media = [m.id_message for m in self.messages if m.isMedia]
 		self.num_media = len(self.media)
+
+	def count_emoticons(self):
+		self.num_emoticons = np.sum([m.text.encode('ascii', 'xmlcharrefreplace').count("&#") for m in self.messages])
 
 	def display_info(self):
 		print "----------------------"
@@ -89,8 +94,11 @@ class Chat(object):
 		chat, chat_def = dict(), dict()
 		
 		for i, l in enumerate(self.lines):
+
 			s = l.split('-')
 			if len(s) > 1:
+				if ":" not in s[1]:
+					continue
 				name = s[1].split(':')[0].lstrip()
 				m_text = ":".join(s[1].split(':')[1:]).lstrip()
 				if name not in chat:
@@ -197,15 +205,20 @@ class Statistics(object):
 
 		return graph
 
-
 	def return_messages_by_user(self, as_chart=False):
 
 		m_by_user = self.df[['user_name', 'id_message']].groupby('user_name').count()
 		m_by_user['Number of Messages'] = m_by_user['id_message']
-		m_by_user = m_by_user[['Number of Messages']]
+		m_by_user = m_by_user[['Number of Messages']].sort(['Number of Messages'], ascending=[0])
 
 		if as_chart:
-			config = serialize(m_by_user, kind='bar', title='Number of Messages', output_type='json')
+			config = serialize(m_by_user, kind='bar', title='Number of Messages',
+							   output_type='json', rot=45)
+
+			config["yAxis"][0]["labels"]["rotation"] = 0
+			config["xAxis"]["title"]["text"] = "user"
+			config["yAxis"][0]["title"] = {"text": "# messages"}
+			config["chart"]["marginTop"] = 70
 			return {'options':config, 'series':config['series']}
 		else:
 			return m_by_user
@@ -214,16 +227,59 @@ class Statistics(object):
 
 		share_by_user = self.df[['user_name','id_message']].groupby('user_name').count()
 		total_num_messages = share_by_user['id_message'].sum()
-		share_by_user['Share of Messages'] = share_by_user['id_message'] * 100.0 / total_num_messages
+		share_by_user['Share of Messages'] = 100.0 * share_by_user['id_message'] / total_num_messages
 		share_by_user = share_by_user[['Share of Messages']]
 
 		if as_chart:
 			tooltip = {'pointFormat': '{series.name}: <b>{point.percentage:.1f}%</b>'}
 			config = serialize(share_by_user, kind='pie', title='Share of Messages',
 							   output_type='json', tooltip=tooltip)
+			config["chart"]["marginTop"] = 70
 			return {'options':config, 'series':config['series']}
 		else:
 			return share_by_user
+
+
+	def return_emoticons_by_user(self, as_chart=False):
+
+		e_by_user = pd.DataFrame({u.name:u.num_emoticons for u in self.chat.users}.items(), columns=['user', 'Number of Emoticons'])
+		e_by_user = e_by_user.sort(['Number of Emoticons'], ascending=[1])
+		e_by_user.set_index('user', inplace=True)
+
+		if as_chart:
+			config = serialize(e_by_user, kind='bar', title='Number of Emoticons',
+							   output_type='json', rot=45)
+
+			config["xAxis"]["title"]["text"] = "user"
+			config["yAxis"][0]["labels"]["rotation"] = 0
+			config["yAxis"][0]["title"] = {"text": "# emoticons"}
+			config["chart"]["marginTop"] = 70
+			return {'options':config, 'series':config['series']}
+		else:
+			return e_by_user
+
+	def return_ratio_media_messages_by_user(self, as_chart=False):
+
+		media_by_user = self.df[self.df.isMedia == True][['user_name', 'isMedia']].groupby('user_name').count()
+		message_by_user = self.df[['user_name', 'id_message']].groupby('user_name').count()
+		message_by_user['Number of Media'] = media_by_user['isMedia']
+		message_by_user.fillna(0, inplace=True)
+
+		message_by_user['Percentage of Photo/Video Messages'] = 100.0 * message_by_user['Number of Media'] / message_by_user['id_message']
+		message_by_user = message_by_user[['Percentage of Photo/Video Messages']].sort(['Percentage of Photo/Video Messages'], ascending=[0])
+		message_by_user = np.round(message_by_user, decimals=2)
+
+		if as_chart:
+			tooltip = {'pointFormat': '{series.name}: <b>{point.y}%</b>'}
+			config = serialize(message_by_user, kind='barh', title='Percentage of Photo/Video Messages',
+							   output_type='json', tooltip=tooltip)
+
+			config["xAxis"]["title"]["text"] = "user"
+			config["yAxis"][0]["title"] = {"text": "percentage of media messages"}
+			config["chart"]["marginTop"] = 70
+			return {'options':config, 'series':config['series']}
+		else:
+			return message_by_user
 
 	def return_number_of_messages_by_hour(self, as_chart=False):
 
@@ -234,6 +290,10 @@ class Statistics(object):
 		if as_chart:
 			config = serialize(m_by_hour, kind='line', title='Number of Messages per Hour of the Day',
 							   output_type='json')
+
+			config["yAxis"][0]["title"] = {"text": "# messages"}
+			config["series"][0]["name"] = "Number of Messages"
+			config["chart"]["marginTop"] = 70
 			return {'options':config, 'series':config['series']}
 		else:
 			return m_by_hour
@@ -244,9 +304,25 @@ class Statistics(object):
 		m_by_hour_user.loc[:, 'hour'] = m_by_hour_user.index.hour
 		m_by_hour_user = m_by_hour_user.groupby(['hour','user_name']).count().unstack().fillna(0)
 
+		names_to_show = []
+		for elt in m_by_hour_user.columns:
+		    names_to_show.append(elt[1])
+		m_by_hour_user.columns = names_to_show
+
 		if as_chart:
 			config = serialize(m_by_hour_user, kind='bar', title='Number of Messages by Hour and User',
 							   output_type='json')
+
+			config["yAxis"][0]["title"] = {"text": "# messages"}
+			config["chart"]["marginTop"] = 70
+
+			for k, v in config.iteritems():
+				if k == "series":
+					r = np.random.choice(len(v), 2, replace=False)
+					for j, d in enumerate(v):
+						if j not in r:
+							config["series"][j]["visible"] = False
+
 			return {'options':config, 'series':config['series']}
 		else:
 			return m_by_hour_user
@@ -260,7 +336,11 @@ class Statistics(object):
 
 		if as_chart:
 			config = serialize(m_by_week_year, kind='bar', title='Total Number of Messages by Week and Year',
-							   output_type='json')
+							   output_type='json', rot=45)
+			config["yAxis"][0]["labels"]["rotation"] = 0
+			config["series"][0]["name"] = "Number of Messages"
+			config["yAxis"][0]["title"] = {"text": "# messages"}
+			config["chart"]["marginTop"] = 70
 			return {'options':config, 'series':config['series']}
 		else:
 			return m_by_week_year
