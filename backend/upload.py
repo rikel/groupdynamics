@@ -15,7 +15,14 @@ def upload_chat():
 	record['number_of_messages'] = chat.return_total_messages()
 	record['number_of_users'] = chat.return_total_users()
 	record['timestamp'] = datetime.datetime.now()
-	record['ip_addr'] = request.remote_addr
+	if request.headers.getlist("X-Forwarded-For"):
+   		ip = request.headers.getlist("X-Forwarded-For")[0]
+   		print ip
+	else:
+   		ip = request.remote_addr
+   		print ip
+   	print ip
+	record['ip_addr'] = ip
 	record = Record(**record)
 	db.session.add(record)
 	db.session.commit()
