@@ -34,5 +34,7 @@ RUN ln -s /var/www/groupdynamics/config/uwsgi.ini /etc/uwsgi/vassals
 RUN chown -R www-data:www-data /var/log/uwsgi
 RUN chown -R www-data:www-data /var/www
 
+ENV NEW_RELIC_CONFIG_FILE=/var/www/groupdynamics/config/newrelic.ini
+
 EXPOSE 80
 CMD ["supervisord", "-n"]
