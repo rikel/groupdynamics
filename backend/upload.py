@@ -3,8 +3,10 @@ from flask import jsonify,request
 from parser import Message, User, Chat, Statistics
 from cStringIO import StringIO
 from models import Record
+import json
 import datetime
 import os
+import uuid
 
 @app.route('/api/uploadChat',methods=['POST'])
 def upload_chat():
@@ -23,9 +25,7 @@ def upload_chat():
    		print ip
    	print ip
 	record['ip_addr'] = ip
-	record = Record(**record)
-	db.session.add(record)
-	db.session.commit()
+	record['url_id'] = str(uuid.uuid4())
 	users = [u.name for u in chat.users]
 	stats_chat = Statistics(chat)
 	charts = {
@@ -39,8 +39,21 @@ def upload_chat():
 		'number_of_messages':chat.return_total_messages(),
 		'number_of_users':chat.return_total_users()
 			}
-	return jsonify(charts)
+	record['chart_config_json'] = json.dumps(charts)
+	record = Record(**record)
+	db.session.add(record)
+	db.session.commit()
+	return jsonify({
+		'url_id':record.url_id, 
+		'number_of_messages':charts['number_of_messages'], 
+		'number_of_users':charts['number_of_users']
+		})
 
+@app.route('/api/getconfig',methods=['POST'])
+def get_config():
+	url_id  = request.json['url_id']
+	record = Record.query.filter_by(url_id=url_id).first()
+	return record.chart_config_json
 
 def get_file_size(fileobj):
 	fileobj.seek(0,os.SEEK_END)
