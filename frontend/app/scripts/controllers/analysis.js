@@ -8,10 +8,7 @@
  * Controller of the frontendApp
  */
 angular.module('frontendApp')
-  .controller('AnalysisCtrl', function () {
-    this.awesomeThings = [
-      'HTML5 Boilerplate',
-      'AngularJS',
-      'Karma'
-    ];
+  .controller('AnalysisCtrl', ['$scope', '$upload','$routeParams','$location', 
+  	function($scope, $upload, $location,$routeParams) {
+  		
   });

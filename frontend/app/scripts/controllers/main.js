@@ -8,14 +8,22 @@
  * Controller of the frontendApp
  */
 angular.module('frontendApp')
-  .controller('MainCtrl', ['$scope', '$upload','$location', function($scope, $upload, $location) {
-  	$scope.fileUploaded = false;
+  .controller('MainCtrl', ['$scope', '$upload','$routeParams', '$location','$http', 
+  	function($scope, $upload, $routeParams, $location, $http) {
+  		if (typeof $routeParams.url_id !== 'undefined' ){
+  			$scope.url_id = $routeParams.url_id;
+  			getChartConfig($scope,$http);
+  		} else {
+  			$scope.url_id = null;
+  			$scope.fileUploaded = false;
+  		}
+
   	
-  	 $scope.gotoBottom = function() {
-      // set the location.hash to the id of
-      // the element you wish to scroll to
+  	 	$scope.gotoBottom = function() {
+      	// set the location.hash to the id of
+      	// the element you wish to scroll to
       
-	  var old = $location.hash();
+	  	var old = $location.hash();
 
       $location.hash('help');
       console.log("in scroll function");
@@ -40,27 +48,36 @@ angular.module('frontendApp')
 			$scope.upload = $upload.upload({
 				url: '/api/uploadChat',
 				method: 'POST',
-				data: {},
+				data: {'url_id': $scope.url_id},
 				file: file
 			}).progress(function(evt) {
 				$scope.progress[i-1] = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
 			}).success(function(data, status, headers, config) {
 				$scope.data = data;
-				// console.log("datasize: " + data.size);
-				// console.log("length: " + data.length);
-				// console.log(data);
 
 				var label = 'Nr. of Messages: ' + $scope.data.number_of_messages + '; Nr. of People: ' + $scope.data.number_of_users;
 				//adding GoogleAnalytics Event
 			     ga('send', 'event', 'SuccesfullUpload', 'click', label);
 				 console.log("Success");
+				 $location.path('/'+data.url_id);
 			}).then(function(){
+				//Not sure any of this gets executed.
 				$scope.selectedFiles = null;
 				$scope.fileUploaded = true;
 				setTimeout(function(){ 	$(window).resize();}, 500);
-
-			
 			});
 		}
 	}
 }]);
+
+function getChartConfig($scope,$http){
+	$http.post('/api/getconfig',{'url_id':$scope.url_id})
+	.success(function(data,status,headers,config){
+		$scope.data = data;
+		$scope.fileUploaded = true;
+	})
+	.error(function(data,status,headers,config){
+		$scope.fileUploaded = false;
+		console.log(data);
+	});
+}
