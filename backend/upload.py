@@ -17,11 +17,7 @@ def upload_chat():
 	record['number_of_messages'] = chat.return_total_messages()
 	record['number_of_users'] = chat.return_total_users()
 	record['timestamp'] = datetime.datetime.now()
-	if request.headers.getlist("X-Forwarded-For"):
-   		ip = request.headers.getlist("X-Forwarded-For")[0]
-	else:
-   		ip = request.remote_addr
-	record['ip_addr'] = ip
+	record['ip_addr'] = request.environ['REMOTE_ADDR']
 	record['url_id'] = str(uuid.uuid4())
 	parent_url = request.form['url_id']
 	if parent_url:
