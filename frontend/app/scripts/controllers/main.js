@@ -10,11 +10,12 @@
 angular.module('frontendApp')
   .controller('MainCtrl', ['$scope', '$upload','$routeParams', '$location','$http', 
   	function($scope, $upload, $routeParams, $location, $http) {
-  		$scope.url_id = $routeParams.url_id;
-  		$scope.fileUploaded = false;
-
-  		if (typeof $scope.url_id !== 'undefined' && $scope.url_id !== null){
+  		if (typeof $routeParams.url_id !== 'undefined' ){
+  			$scope.url_id = $routeParams.url_id;
   			getChartConfig($scope,$http);
+  		} else {
+  			$scope.url_id = null;
+  			$scope.fileUploaded = false;
   		}
 
   	
@@ -47,7 +48,7 @@ angular.module('frontendApp')
 			$scope.upload = $upload.upload({
 				url: '/api/uploadChat',
 				method: 'POST',
-				data: {},
+				data: {'url_id': $scope.url_id},
 				file: file
 			}).progress(function(evt) {
 				$scope.progress[i-1] = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));

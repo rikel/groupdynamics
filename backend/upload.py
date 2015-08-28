@@ -19,13 +19,16 @@ def upload_chat():
 	record['timestamp'] = datetime.datetime.now()
 	if request.headers.getlist("X-Forwarded-For"):
    		ip = request.headers.getlist("X-Forwarded-For")[0]
-   		print ip
 	else:
    		ip = request.remote_addr
-   		print ip
-   	print ip
 	record['ip_addr'] = ip
 	record['url_id'] = str(uuid.uuid4())
+	parent_url = request.form['url_id']
+	if parent_url:
+		parent = Record.query.filter_by(url_id = parent_url).first()
+		if parent:
+			record['parent_id'] = parent.id
+
 	users = [u.name for u in chat.users]
 	stats_chat = Statistics(chat)
 	charts = {
