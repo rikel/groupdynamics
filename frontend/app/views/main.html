@@ -157,8 +157,12 @@
                     </div>
                 </div>
             </div>
-
+            <div class="row">
+                <div class="col-md-offset-2 col-md-8 services2 text-center">
+                    <a ng-href="whatsapp://send?text={{encodedUrl}}" data-action="share/whatsapp/share" class="btn btn-success btn-lg"><i class="fa fa-whatsapp"></i> Share on Whatsapp</a>
+                    <div class="btn bg-primary btn-lg" ng-file-select="onFileSelect($files,$scope)">Analyze another Chat</div>
+                </div>
+            </div>
         </section>
     </div>
-
 </div>

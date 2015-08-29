@@ -19,7 +19,10 @@ angular
     'angularFileUpload',
     'highcharts-ng'
   ])
-  .config(function ($routeProvider,$locationProvider) {
+  .config(function ($routeProvider,$locationProvider,$compileProvider) {
+
+    $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|chrome-extension|whatsapp):/);
+
     $routeProvider
     .when("/", {
       templateUrl: 'views/main.html',
@@ -35,3 +38,4 @@ angular
       redirectTo: "/"
     });
   });
+

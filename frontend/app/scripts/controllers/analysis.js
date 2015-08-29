@@ -11,4 +11,4 @@ angular.module('frontendApp')
   .controller('AnalysisCtrl', ['$scope', '$upload','$routeParams','$location', 
   	function($scope, $upload, $location,$routeParams) {
   		
-  });
+  }]);
