@@ -69,3 +69,4 @@ assets/
 .ipynb_checkpoints/
 data/
 *.ipynb
+*.db
