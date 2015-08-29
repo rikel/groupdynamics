@@ -60,7 +60,6 @@ target/
 
 # frontend stuff
 frontend/node_modules/
-frontend/dist/
 frontend/.tmp
 frontend/.sass-cache/
 frontend/bower_components/x

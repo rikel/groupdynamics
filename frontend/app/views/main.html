@@ -1,23 +1,145 @@
-<div class="jumbotron">
-  <h1>'Allo, 'Allo!</h1>
-  <p class="lead">
-    <img src="images/yeoman.png" alt="I'm Yeoman"><br>
-    Always a pleasure scaffolding your apps.
-  </p>
-  <p><a class="btn btn-lg btn-success" ng-href="#/">Splendid!<span class="glyphicon glyphicon-ok"></span></a></p>
-</div>
+<div class="container-fluid">
+    <div ng-if="fileUploaded == false">
 
-<div class="row marketing">
-  <h4>HTML5 Boilerplate</h4>
-  <p>
-    HTML5 Boilerplate is a professional front-end template for building fast, robust, and adaptable web apps or sites.
-  </p>
+        <div class="row">
+            <div class="col-md-offset-3 col-md-6 text-center header">
+                <h1>#<b>group</b>Stats.io</h1>
+                <div>
+                    <h4>Understand your friends. Use your Whatsapp chat history.</h4>
+                </div>
+                <div class="btn bg-primary btn-lg" ng-file-select="onFileSelect($files,$scope)">Upload your Chat
+                </div>
+                <div>
+                <a ng-click="gotoBottom()">How it works</a> / 
+                <a href="/#/f3e2ccd8-2206-4d79-a1fb-4ec1eada0ebc">See an example</a>
+                </div>
+            </div>
+        </div>
 
-  <h4>Angular</h4>
-  <p>
-    AngularJS is a toolset for building the framework most suited to your application development.
-  </p>
+        <!-- Services -->
+        <!-- The circle icons use Font Awesome's stacked icon classes. For more information, visit http://fontawesome.io/examples/ -->
 
-  <h4>Karma</h4>
-  <p>Spectacular Test Runner for JavaScript.</p>
+        <section id="help">
+            <div class="row text-center" >
+                <div class="col-md-12 text-center services bg-primary">
+
+                    <h2>How it works</h2>
+                    <hr class="small">
+                    <div class="row">
+                        <div class="col-md-4 col-sm-12">
+                            <div class="service-item">
+                                <h4>
+                                    <strong>Step 1: Export</strong>
+                                </h4>
+                                <p>
+                                    Open the WhatsApp chat that you want to analyze. Find the "Email Chat" action and send it to you.
+
+
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-sm-12">
+                            <div class="service-item">
+
+                                <h4>
+                                    <strong>Step 2: Save</strong>
+                                </h4>
+                                <p>
+
+
+                                    Open the email that you sent in Step 1 and save the attached txt file. Note: We DON'T save any of your uploaded data.
+
+
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 col-sm-12">
+                            <div class="service-item">
+
+                                <h4>
+                                    <strong>Step 3: Upload</strong>
+                                </h4>
+                                <p>
+
+                                    Upload the text file that you saved in Step 2 on this website.
+
+
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+    </div>
+
+
+    <!--<div ng-if="fileUploaded == true">-->
+
+    <!--    <header id="top" class="header">-->
+    <!--        <div class="row">-->
+    <!--            <div class="col-md-12">-->
+    <!--                #<b>group</b>Stats.io-->
+    <!--                <div class="btn bg-primary btn-md" ng-file-select="onFileSelect($files,$scope)">Upload another Chat-->
+    <!--                </div>-->
+    <!--            </div>-->
+
+    <!--        </div>-->
+    <!--    </header>-->
+
+    <!--</div>-->
+
+
+
+
+
+    <!--   <div align="left">
+    <h2>#<b>Group</b>Dynamics</h2><p> Understand your friends using your Whatsapp chat history! </p>
+    <br>
+    <div class="btn btn-lg btn-primary" ng-file-select="onFileSelect($files,$scope)">Upload Chat File</div>
+  </div> -->
+
+    <!-- <div class="jumbotron"> -->
+    <!--   <div>
+    <div>
+      <h1>#<b>Group</b>Dynamics</h1>
+      <p class="lead">
+        <!-<img src="images/yeoman.png" alt="I'm Yeoman">-->
+    <!-- <br>
+        Understand your friends using your Whatsapp chat history!
+      </p>
+      <p>
+        <div class="btn btn-lg btn-primary" ng-file-select="onFileSelect($files,$scope)">Upload Chat File</div>
+      </p>
+    </div>
+  </div> -->
+    <div ng-if="fileUploaded == true">
+
+        <div class="row">
+            <div class="col-md-offset-3 col-md-6 text-center header2">
+                <h1>#<b>group</b>Stats.io</h1>
+                <div>
+                    <h4>Understand your friends. Use your Whatsapp chat history.</h4>
+                </div>
+                <div class="btn bg-primary btn-lg" ng-file-select="onFileSelect($files,$scope)">Upload another Chat
+                </div>
+            </div>
+        </div>
+
+        <section>
+            <div class="row">
+                <div class="col-md-offset-2 col-md-8 services2 ">
+                    <div ng-repeat="chartConfig in data.charts">
+                        <highchart config="data.charts[$index]"></highchart>
+                        <br>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </div>
+
 </div>
