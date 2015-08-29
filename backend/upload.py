@@ -33,8 +33,14 @@ def upload_chat():
 				  stats_chat.return_ratio_media_messages_by_user(as_chart=True),
 				  stats_chat.return_number_of_messages_by_hour(as_chart=True),
 				  stats_chat.return_number_of_messages_by_hour_and_user(as_chart=True),
+				  stats_chat.return_average_message_length_user(as_chart=True),
+				  stats_chat.return_share_of_conversations_started_by_user(as_chart=True),
+				  stats_chat.return_share_of_conversations_first_replied_by_user(as_chart=True),
+				  stats_chat.return_number_of_messages_by_dayofweek_and_user(as_chart=True),
 				  stats_chat.return_emoticons_by_user(as_chart=True),
-				  stats_chat.return_number_of_messages_by_week_and_year(as_chart=True)],
+				  stats_chat.return_number_of_messages_by_week_and_year(as_chart=True),
+				  stats_chat.return_number_of_messages_by_week_year_and_user(as_chart=True),
+				  stats_chat.return_number_of_jajaja_by_user(as_chart=True)],
 		'number_of_messages':chat.return_total_messages(),
 		'number_of_users':chat.return_total_users()
 			}
