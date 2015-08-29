@@ -13,6 +13,7 @@ angular.module('frontendApp')
   		if (typeof $routeParams.url_id !== 'undefined' ){
   			$scope.url_id = $routeParams.url_id;
   			getChartConfig($scope,$http);
+  			$scope.encodedUrl = encodeURIComponent('Check our chat stats: ' + 'http://groupstats.io/#/' + $scope.url_id)
   		} else {
   			$scope.url_id = null;
   			$scope.fileUploaded = false;
