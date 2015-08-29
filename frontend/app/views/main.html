@@ -3,15 +3,30 @@
 
         <div class="row">
             <div class="col-md-offset-3 col-md-6 text-center header">
-                <h1>#<b>group</b>Stats.io</h1>
+                <h1>#<b>group</b>Stats.io </h1> <span id="beta"> BETA </span>
                 <div>
-                    <h4>Understand your friends. Use your Whatsapp chat history.</h4>
+                    <h4>Understand your friends. Analyze your Whatsapp chat history.</h4>
                 </div>
+
                 <div class="btn bg-primary btn-lg" ng-file-select="onFileSelect($files,$scope)">Upload your Chat
                 </div>
                 <div>
-                <a ng-click="gotoBottom()">How it works</a> / 
-                <a href="/#/f3e2ccd8-2206-4d79-a1fb-4ec1eada0ebc">See an example</a>
+                    <a ng-click="gotoBottom()">How it works</a> /
+                    <a href="/#/f3e2ccd8-2206-4d79-a1fb-4ec1eada0ebc">See an example</a>
+                </div>
+            </div>
+        </div>
+
+
+        <div ng-if="loadingSpinner == true">
+
+            <div class="row">
+                <div class="col-md-offset-3 col-md-6 text-center header">
+
+                    <div class="sk-double-bounce">
+                        <div class="sk-child sk-double-bounce1"></div>
+                        <div class="sk-child sk-double-bounce2"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -19,37 +34,44 @@
         <!-- Services -->
         <!-- The circle icons use Font Awesome's stacked icon classes. For more information, visit http://fontawesome.io/examples/ -->
 
-        <section id="help">
-            <div class="row text-center" >
-                <div class="col-md-12 text-center services bg-primary">
+        <div class = services>
+        <div class="row text-center">
+            <section id="help">
+
+                <div class="col-md-12 text-center bg-primary">
 
                     <h2>How it works</h2>
+                    <!--<div class="dropdown">-->
+                    <!--    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown"> Select Device-->
+                    <!--        <span class="caret"></span></button>-->
+                    <!--    <ul class="dropdown-menu" id="dropdownList" role="menu">-->
+                    <!--        <li class="dropdown"><a href="#">Android</a></li>-->
+                    <!--        <li class="dropdown"><a href="#">iPhone</a></li>-->
+                    <!--    </ul>-->
+                    <!--</div>-->
                     <hr class="small">
+
                     <div class="row">
                         <div class="col-md-4 col-sm-12">
                             <div class="service-item">
                                 <h4>
-                                    <strong>Step 1: Export</strong>
+                                    <strong>Step 1: Export from WhatsApp </strong>
                                 </h4>
-                                <p>
-                                    Open the WhatsApp chat that you want to analyze. Find the "Email Chat" action and send it to you.
+                                <div ng-if="dropdown == Android">
 
-
-                                </p>
+                                    <p> (1) Tap and hold the chat. (2) Select "Email Chat" and choose "Without Media". (3) Send it to your own Email address.
+                                    </p>
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-4 col-sm-12">
                             <div class="service-item">
 
                                 <h4>
-                                    <strong>Step 2: Save</strong>
+                                    <strong>Step 2: Save to your phone</strong>
                                 </h4>
                                 <p>
-
-
-                                    Open the email that you sent in Step 1 and save the attached txt file. Note: We DON'T save any of your uploaded data.
-
-
+                                    Open the email that you sent in Step 1 and save the attached txt file.
                                 </p>
                             </div>
                         </div>
@@ -58,64 +80,49 @@
                             <div class="service-item">
 
                                 <h4>
-                                    <strong>Step 3: Upload</strong>
+                                    <strong>Step 3: Upload to this website</strong>
                                 </h4>
                                 <p>
 
-                                    Upload the text file that you saved in Step 2 on this website.
-
+                                    Upload the text file that you saved in Step 2 to this website. (1) Click the 'Upload your Chat' button. (2) Select 'Documents' and (3) choose the txt file.
 
                                 </p>
                             </div>
                         </div>
                     </div>
                 </div>
+        </div>
+
+
+        <div class="row text-center faq">
+            <div class="col-md-12 text-center bg-primary">
+
+                <h2>FAQ</h2>
+
+                <hr class="small">
+
+                <div class="row">
+                    <div class="col-md-12 col-sm-12">
+                        <div class="service-item">
+                            <h4>
+                                    <strong>How is my data stored?</strong>
+                                </h4>
+                            <p> We don't store your chats. When you upload your chat, we analyze it and then drop the data.
+                            </p>
+                        </div>
+                    </div>
+                    
+
+                    
+                </div>
             </div>
+        </div>
 
         </section>
-
+</div>
     </div>
 
 
-    <!--<div ng-if="fileUploaded == true">-->
-
-    <!--    <header id="top" class="header">-->
-    <!--        <div class="row">-->
-    <!--            <div class="col-md-12">-->
-    <!--                #<b>group</b>Stats.io-->
-    <!--                <div class="btn bg-primary btn-md" ng-file-select="onFileSelect($files,$scope)">Upload another Chat-->
-    <!--                </div>-->
-    <!--            </div>-->
-
-    <!--        </div>-->
-    <!--    </header>-->
-
-    <!--</div>-->
-
-
-
-
-
-    <!--   <div align="left">
-    <h2>#<b>Group</b>Dynamics</h2><p> Understand your friends using your Whatsapp chat history! </p>
-    <br>
-    <div class="btn btn-lg btn-primary" ng-file-select="onFileSelect($files,$scope)">Upload Chat File</div>
-  </div> -->
-
-    <!-- <div class="jumbotron"> -->
-    <!--   <div>
-    <div>
-      <h1>#<b>Group</b>Dynamics</h1>
-      <p class="lead">
-        <!-<img src="images/yeoman.png" alt="I'm Yeoman">-->
-    <!-- <br>
-        Understand your friends using your Whatsapp chat history!
-      </p>
-      <p>
-        <div class="btn btn-lg btn-primary" ng-file-select="onFileSelect($files,$scope)">Upload Chat File</div>
-      </p>
-    </div>
-  </div> -->
     <div ng-if="fileUploaded == true">
 
         <div class="row">
@@ -125,6 +132,18 @@
                     <h4>Understand your friends. Use your Whatsapp chat history.</h4>
                 </div>
                 <div class="btn bg-primary btn-lg" ng-file-select="onFileSelect($files,$scope)">Upload another Chat
+                </div>
+            </div>
+        </div>
+        <div ng-if="loadingSpinner == true">
+
+            <div class="row">
+                <div class="col-md-offset-3 col-md-6 text-center header">
+
+                    <div class="sk-double-bounce">
+                        <div class="sk-child sk-double-bounce1"></div>
+                        <div class="sk-child sk-double-bounce2"></div>
+                    </div>
                 </div>
             </div>
         </div>
