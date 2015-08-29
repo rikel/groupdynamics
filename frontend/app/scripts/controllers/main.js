@@ -77,8 +77,9 @@ angular.module('frontendApp')
 							}, 500);
 						});
 					}
+				};
 				
-				]);
+				}]);
 
 			function getChartConfig($scope, $http) {
 				console.log("in GetChart confgig");
